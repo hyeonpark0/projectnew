@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Jekyll v4.0.1">
+    <title>movie</title>
+    <script src="https://code.jquery.com/jquery-3.5.1.js" integrity="sha256-QWo7LDvxbWT2tbbQ97B53yJnYU3WhH/C8ycbRAkjPDc=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js" integrity="sha256-T0Vest3yCU7pafRw9r+settMBX6JkKN06dqBnpQ8d30=" crossorigin="anonymous"></script>
+    
+    <link rel="canonical" href="https://getbootstrap.com/docs/4.5/examples/blog/">
+
+    
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+    </style>
+    
+    <link href="https://fonts.googleapis.com/css?family=Playfair+Display:700,900" rel="stylesheet">
+    
+    <link href="./css/home.css" rel="stylesheet">
+    <script>
+      function movie(movieCd) {  //박스오피스
+        $("#memo").empty();
+        var url = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/movie/searchMovieInfo.xml?key=c13ebb31fe25212c027f007454f344f2&movieCd="; // c13ebb31fe25212c027f007454f344f2
+        url = url + movieCd;
+        $.ajax({
+          url: url,
+          type: "GET",
+          dataType: "xml",
+          success: function(movie_data) {
+            var str = "";
+            str = str + "<span><div>" + $(movie_data).find("movieNm").text() + " (";
+            str = str + $(movie_data).find("movieNmEn").text() + ")</div>";
+  
+            str = str + "<div>감독 : " + $(movie_data).find("directors").text() + "</div>";
+            str = str + "<div>국가 : " + $(movie_data).find("nationNm").text() + "</div>";
+            str = str + "<div>개봉일 : " + $(movie_data).find("openDt").text() + "개봉</div>";
+            str = str + "<div>상영시간 : " + $(movie_data).find("showTm").text() + "분</div>";
+            str = str + "<div>관람등급 : " + $(movie_data).find("watchGradeNm").text() + "</div>";
+            str = str + "<div>배우 : </div>";
+  
+            str = str + "<ul>";
+            $(movie_data).find("actor").each(function() {
+  
+              str = str + "<li><a href='https://search.naver.com/search.naver?sm=top_hty&fbm=1&ie=utf8&query=" + $(this).find("peopleNm").text() + "'>";
+              str = str + $(this).find("peopleNm").text() + "</a></li>";
+  
+            });
+            str = str + "</ul>";
+              str = str + "</span>";
+            $("#memo").append(str);
+          },
+          error: function() {
+            alert("Error ...");
+          }
+        });
+      }
+  
+      $(document).ready(function() {
+        document.getElementById("today").valueAsDate = new Date();
+        $("#Sday").click(function() {
+          $("#choice").show();
+          $("#list").empty();
+          $("#memo").empty();
+          $("#info").empty();
+        });
+        $("#Scompany").click(function() { //영화사별choise
+          $("#choice").hide();
+          $("#list").empty();
+          $("#memo").empty();
+          $("#info").empty();
+  
+          var url = "http://kobis.or.kr/kobisopenapi/webservice/rest/company/searchCompanyList.xml?key=c13ebb31fe25212c027f007454f344f2";
+  
+          $.ajax({
+            url: url,
+            type: "GET",
+            dataType: "xml",
+            success: function(company_data) {
+              var str = "";
+  
+              if ($(company_data).find("company").text() == "") {
+                $("#list").append("자료가 없습니다.");
+                return;
+              }
+              str = str + "<table>";
+              $(company_data).find("company").each(function() {
+                str = str + "<tr>";
+                str = str + "<td>"+$(this).find("companyCd").text()+"</td>";
+                str = str + "<td>"+$(this).find("companyNm").text()+"</td>";
+                str = str + "<td>"+$(this).find("ceoNm").text()+"</td>";
+                str = str + "<td>"+$(this).find("companyPartNames").text()+"</td>";
+                str = str + "</tr>"
+              });
+              str = str + "</table>"
+              $("#list").append(str);
+            },
+            error: function() {
+              $("#list").append("Error ...");
+            }
+          });
+        });
+        
+        $("#ok").click(function() {  //일별박스오피스
+          $("#list").empty();
+          $("#memo").empty();
+          $("#info").empty();
+  
+          var url = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.xml?key=c13ebb31fe25212c027f007454f344f2&targetDt=";
+          date_list = $('#today').val().split('-');
+          url = url + date_list[0] + date_list[1] + date_list[2];
+  
+          $.ajax({
+            url: url,
+            type: "GET",
+            dataType: "xml",
+            success: function(mydata) {
+              var str = "";
+  
+              if ($(mydata).find("dailyBoxOffice").text() == "") {
+                $("#list").append("자료가 없습니다.");
+                return;
+              }
+              $(mydata).find("dailyBoxOffice").each(function() {
+                str = str + $(this).find("rank").text() + "위 "
+  
+                str = str + "<a href='#' onclick='javascript:movie(" + $(this).find("movieCd").text() + ")'>";
+                str = str + $(this).find("movieNm").text() + "</a>";
+  
+                str = str + " (전일대비 ";
+                rankInten = eval($(this).find("rankInten").text());
+                if (rankInten > 0) {
+                  str = str + "+" + rankInten + ", "
+                } else if (rankInten < 0) {
+                  str = str + "-" + Math.abs(rankInten) + ", "
+                } else {
+                  str = str + rankInten + ", "
+                }
+  
+                str = str + "누적관객수 " + $(this).find("audiAcc").text() + "명)<br>";
+              });
+              $("#list").append(str);
+            },
+            error: function() {
+              $("#list").append("Error ...");
+            }
+          });
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div class="container">
+  <header class="blog-header py-3">
+    <div class="row flex-nowrap justify-content-between align-items-center">
+      <div class="col-4 pt-1">
+        <a class="text-muted" href="#">1705016</a>
+      </div>
+      <div class="col-4 text-center">
+        <a class="blog-header-logo text-dark" href="index.html">COSMOS</a>
+      </div>
+      <div class="col-4 d-flex justify-content-end align-items-center">
+        
+      </div>
+    </div>
+  </header>
+
+  <div class="nav-scroller py-1 mb-2">
+    <nav class="nav d-flex justify-content-between">
+      <a class="p-2 text-muted" href="movie.html">MOVIE</a>
+      <a class="p-2 text-muted" href="mission.html">MISSION</a>
+      <a class="p-2 text-muted" href="gallery.html">GALLERY</a>
+      <a class="p-2 text-muted" href="local.html">LOCAL</a>
+      <a class="p-2 text-muted" href="kasi.html">KASI</a>
+      <a class="p-2 text-muted" href="nasa.html">NASA</a>
+      <a class="p-2 text-muted" href="spacex.html">SPACEX</a>
+      <a class="p-2 text-muted" href="game.html">GAME</a>
+      <a class="p-2 text-muted" href="aboutp.html">ABOUT-PARK</a>
+    </nav>
+  </div>
+
+  <div class="jumbotron p-4 p-md-5 text-white rounded bg-dark">
+    <div class="col-md-6 px-0 ">
+      <h1 class="display-4 font-italic">BOX OFFICE</h1>
+      <p class="lead my-3">지금 상영중인 영화의 랭킹을 보여주고 있습니다</p>
+      <p class="lead my-3">즐거운 시간이 되시길 바랍니다.</p>
+      <p class="lead mb-0"><a href="http://www.cgv.co.kr/" class="text-white font-weight-bold">Show More</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- 박스오피스 api -->
+<main role="main" class="container">
+  <div class="row">
+    <div class="col-md-8 blog-main">
+      <h3 class="pb-4 mb-4 font-italic border-bottom">
+      영화 박스 오피스
+      </h3>
+
+      <div class="blog-post">
+        <span id="select">
+          <button class="btn btn-outline-primary" id="Sday">BoxOffice</button>
+          <button class="btn btn-outline-primary" id="Scompany">Company</button>
+        </span>
+        <span id="choice">
+          <input class="btn btn-outline-primary" type="date" id="today">
+          <button class="btn btn-outline-primary" id="ok">확인</button>
+          <span id="title">
+          </span>
+          <span id="companyList">
+      
+          </span>
+        </span>
+      
+        <span id="all">
+      
+          <hr>
+          <span id="list">
+      
+          </span>
+          <hr>
+          <span id="memo">
+          </span>
+          <span id="info">
+          </span>
+      
+        </span>
+      </div>
+
+
+     
+    </div>
+
+    <aside class="col-md-4 blog-sidebar">
+      <div class="p-4 mb-3 bg-light rounded">
+        
+      </div>
+
+      <div class="p-4">
+        <h4 class="font-italic">MENU</h4>
+        <ol class="list-unstyled mb-0">
+          <li><a href="movie.html">MOVIE</a></li>
+          <li><a href="mission.html">MISSION</a></li>
+          <li><a href="gallery.html">GALLERY</a></li>
+          <li><a href="local.html">LOCAL</a></li>
+          <li><a href="kasi.html">KASI</a></li>
+          <li><a href="nasa.html">NASA</a></li>
+          <li><a href="spacex.html">SPACEX</a></li>
+          <li><a href="game.html">GAME</a></li>
+          <li><a href="aboutp.html">ABOUT-PARK</a></li>
+        </ol>
+      </div>
+
+      <div class="p-4">
+        <h4 class="font-italic">Elsewhere</h4>
+        <ol class="list-unstyled">
+          <li><a href="www.github.com">GitHub</a></li>
+          <li><a href="www.naver.com">Naver</a></li>
+          <li><a href="www.google.com">Google</a></li>
+        </ol>
+      </div>
+    </aside>
+
+  </div>
+
+</main>
+
+<footer class="blog-footer">
+  <p>Blog made by PARK <a href="aboutp.html">ABOUT-PARK</a> enjoy your time <a href="mission.html">@MISSION</a>.</p>
+  <p>
+    <a href="#">Back to top</a>
+  </p>
+</footer>
+</body>
+</html>

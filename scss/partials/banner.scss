@@ -1,0 +1,82 @@
+.banner {
+  @extend %full-width;
+  background: $bg-color;
+  background-image: url("");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  position: relative;
+
+  .header {
+    position: absolute;
+    width: 100%;
+    top: 10%;
+
+    .header-title {
+      @include header-title(5rem);
+      text-align: center;
+
+      @include mobile {
+        font-size: 3.4rem;
+        padding: 0 10px;
+      }
+
+      .link {
+        color: $banner-title-color;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+  }
+
+  .banner-video {
+    height: 100%;
+    width: 100%;
+  }
+}
+
+.container {
+  @extend %container;
+  padding: 20px;
+
+  .copyright,
+  .date {
+    font-size: 1.2rem;
+    word-spacing: .2rem;
+    padding: 0px 15px;
+
+    @include mobile {
+      font-size: 1rem;
+      word-spacing: .1rem;
+    }
+  }
+
+  .banner-subtitle {
+    font-size: 3rem;
+    font-weight: 900;
+    word-spacing: .2rem;
+    padding: 15px;
+
+    @include mobile {
+      font-size: 2.5rem;
+      word-spacing: .1rem;
+    }
+  }
+
+  .banner-content {
+    font-size: 1.5rem;
+    text-indent: 1rem;
+    text-align: justify;
+    line-height: 1.7rem;
+    word-spacing: .3rem;
+    font-weight: 400;
+
+    @include mobile {
+      font-size: 1.2rem;
+      word-spacing: .1rem;
+    }
+  }
+}

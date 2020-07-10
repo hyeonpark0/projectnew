@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>박스오피스</title>
+	<style>
+
+	</style>
+	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+	<script>
+
+
+		$(document).ready(function() {
+			function apod(today) {
+				document.getElementById("today").valueAsDate = new Date();
+
+			$("#memo").empty();
+			var url = "https://api.nasa.gov/planetary/apod?api_key=xyVcIKOHUQT4yUhCA2f3UDm0onilPJh21ky8mJun&date=";
+			date_list = $('#today').val().split('-');
+			url = url + date_list[0] + date_list[1] + date_list[2];
+			$.ajax({
+				url: url,
+				type: "GET",
+				dataType: "xml",
+				success: function(date_apod) {
+					var str = "";
+					str = str + "<div>" + $(date_apod).find("title").text() + "(";
+					str = str + $(date_apod).find("explanation").text() + ")</div>";
+					//str = str + "<div><img src=''" + $(date_apod).find("url").text() + "/></div>";
+
+
+					$("#memo").append(str);
+				},
+				error: function() {
+					alert("Error ...");
+				}
+			});
+		}
+			document.getElementById("today").valueAsDate = new Date();
+
+			$("#ok").click(function() {
+				$("#list").empty();
+				$("#memo").empty();
+
+				var url = "http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.xml?key=c68166582e884ec3807477495e43cd6e&targetDt=";
+				date_list = $('#today').val().split('-');
+				url = url + date_list[0] + date_list[1] + date_list[2];
+
+				$.ajax({
+					url: url,
+					type: "GET",
+					dataType: "xml",
+					success: function(mydata) {
+						var str = "";
+
+						if ($(mydata).find("dailyBoxOffice").text() == "") {
+							$("#list").append("자료가 없습니다.");;
+							return;
+						}
+						$(mydata).find("dailyBoxOffice").each(function() {
+							str = str + $(this).find("rank").text() + "위 "
+
+							str = str + "<a href='#' onclick='javascript:movie(" + $(this).find("movieCd").text() + ")'>";
+							str = str + $(this).find("movieNm").text() + "</a>";
+
+							str = str + " (전일대비 ";
+							rankInten = eval($(this).find("rankInten").text());
+							if (rankInten > 0) {
+								str = str + "+" + rankInten + ", "
+							} else if (rankInten < 0) {
+								str = str + "-" + Math.abs(rankInten) + ", "
+							} else {
+								str = str + rankInten + ", "
+							}
+
+							str = str + "누적관객수 " + $(this).find("audiAcc").text() + "명)<br>";
+						});
+						$("#list").append(str);
+					},
+					error: function() {
+						$("#list").append("Error ...");
+					}
+				});
+			});
+		});
+	</script>
+</head>
+<body>
+
+	<div id="memo">
+	</div>
+</body>
+</html>
